@@ -5,6 +5,7 @@ from json_handler import writeJson, readJson
 from input.read_from_data import read_from_file
 from statistic.go_across import calculate_go_accross
 from statistic.place_occupation import calculate_place_occupation
+from statistic.room_people import calculate_room_people
 from statistic.floor_people import calculate_floor_people
 from statistic.empty_classroom import calculate_empty_classroom
 from statistic.cross_group import calculate_cross_group
@@ -16,7 +17,7 @@ from optimization.optimize_place import optimize_by_place
 # groups 班级相关
 # lessons 课程相关
 
-# places, groups, lessons = read_from_file()
+places, groups, lessons = read_from_file()
 
 
 # print('Total classroom: ', len(places))
@@ -64,9 +65,9 @@ from optimization.optimize_place import optimize_by_place
 #
 # 写入json
 #
-# floor_people_list = calculate_floor_people(places, groups, lessons)
-# writeJson(floor_people_list, 'floor_people_list.json')
-#
+# room_people_list = calculate_room_people(places, groups, lessons)
+# writeJson(room_people_list, 'room_people_list.json')
+
 # occpuation_list = calculate_place_occupation(places, groups, lessons)
 # writeJson(occpuation_list, 'occupation_list.json')
 #
@@ -82,15 +83,20 @@ parent_path = os.path.dirname(path)
 
 occpuation_list = readJson(parent_path + '/jsons/occupation_list.json')
 across_list = readJson(parent_path + '/jsons/across_list.json')
-floor_people_list = readJson(parent_path + '/jsons/floor_people_list.json')
+room_people_list = readJson(parent_path + '/jsons/room_people_list.json')
 classroom_info = readJson(parent_path + '/jsons/classroom_info.json')
 
-
-print(floor_people_list[1])
+print(room_people_list[1])
 print(occpuation_list[1])
 print(across_list[0])
-print(classroom_info['N'])
+print(classroom_info['N']['北区综合楼'])
 
+
+floor_people = calculate_floor_people(places, groups, lessons, room_people_list, classroom_info)
+
+floor_dict = floor_people[1][2][1]
+
+print(floor_dict)
 
 
 
