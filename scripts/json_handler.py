@@ -4,6 +4,8 @@ def writeJson(data, filename):
     f = open(filename, 'w')
     json.dumps(data, f)
     f.close()
+    # with open("classroom.json", "w") as f:
+    #     json.dump(info, f)
 
 def readJson(filename):
     f = open(filename)

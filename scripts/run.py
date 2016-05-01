@@ -61,8 +61,6 @@ from optimization.optimize_place import optimize_by_place
 
 
 
-
-
 #
 # 写入json
 #
@@ -79,24 +77,25 @@ from optimization.optimize_place import optimize_by_place
 # 从json读取
 #
 
-# path = os.getcwd()
-# parent_path = os.path.dirname(path)
-#
-# occpuation_list = readJson(parent_path + '/jsons/occupation_list.json')
-# across_list = readJson(parent_path + '/jsons/across_list.json')
-# floor_people_list = readJson(parent_path + '/jsons/floor_people_list.json')
-#
-# print(floor_people_list[1])
-# print(occpuation_list[1])
-# print(across_list[0][0])
-#
-#
-#
+path = os.getcwd()
+parent_path = os.path.dirname(path)
+
+occpuation_list = readJson(parent_path + '/jsons/occupation_list.json')
+across_list = readJson(parent_path + '/jsons/across_list.json')
+floor_people_list = readJson(parent_path + '/jsons/floor_people_list.json')
+classroom_info = readJson(parent_path + '/jsons/classroom_info.json')
+
+
+print(floor_people_list[1])
+print(occpuation_list[1])
+print(across_list[0])
+print(classroom_info['N'])
 
 
 
-import matplotlib.pyplot as plt
-plt(np.arrage(10))
 
+# import matplotlib.pyplot as plt
+# plt(np.arrage(10))
+#
 
 
