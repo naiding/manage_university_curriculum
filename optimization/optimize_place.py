@@ -79,11 +79,11 @@ def get_separate_group_list(lesson_group_list, week, period, time_option):
 
 def sort_by_list_count(list):
        cnt = 0
-       city= ""
+       city = ""
        for x in list:
-           if list.count(x)>cnt:
-               city=x
-               cnt=list.count(x)
+           if list.count(x) > cnt:
+               city = x
+               cnt = list.count(x)
        return city
 
 def pick_best_classroom(week, period, time_option, groups, avaliable_empty_classroom):
@@ -165,8 +165,13 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
     # total = 0
     # for _, value in enumerate(new_cross_groups_list):
     #     total += calculate_cross_people(value, week, period, time_option)
-    #
     # print(total)
+    #
+
+    # optimized_groups_list = []
+    # for _, lesson in enumerate(cross_groups_list):
+    #     for _, group in enumerate(lesson):
+    #         optimized_groups_list.append(group)
 
     optimized_groups_list = []
 
@@ -181,11 +186,14 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
                 if empty_classroom.people >= total_north_people:
                     avaliable_empty_classroom.append(empty_classroom)
             if(len(avaliable_empty_classroom) > 0):
-                print(index, "Found")
+                # print(index, "Found")
                 best_empty_classroom = pick_best_classroom(week, period, time_option, north_groups, avaliable_empty_classroom)
                 for _, every_group in enumerate(value):
+                    # print("O, old, ", every_group.group_no, ": ", every_group.lessons[week][period][time_option*4+2].place)
                     every_group.lessons[week][period][time_option*4+2].place = best_empty_classroom.place_no
                     every_group.lessons[week][period][time_option*4+3].place = best_empty_classroom.place_no
+                    # print("O, new: ", every_group.group_no, ": ",  every_group.lessons[week][period][time_option*4+2].place)
+
                     optimized_groups_list.append(every_group)
 
         avaliable_empty_classroom = []
@@ -194,13 +202,14 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
                 if empty_classroom.people >= total_south_people:
                     avaliable_empty_classroom.append(empty_classroom)
             if(len(avaliable_empty_classroom) > 0):
-                print(index, "Found")
+                # print(index, "Found")
                 best_empty_classroom = pick_best_classroom(week, period, time_option, south_groups, avaliable_empty_classroom)
                 for _, every_group in enumerate(value):
+                    # print("O, old: ", every_group.group_no, ": ", every_group.lessons[week][period][time_option*4+2].place)
                     every_group.lessons[week][period][time_option*4+2].place = best_empty_classroom.place_no
                     every_group.lessons[week][period][time_option*4+3].place = best_empty_classroom.place_no
                     optimized_groups_list.append(every_group)
-
+                    # print("O, new: ", every_group.group_no, ": ",  every_group.lessons[week][period][time_option*4+2].place)
 
     print('Total of optimized cross people:', len(optimized_groups_list))
 
