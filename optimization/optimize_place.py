@@ -2,6 +2,7 @@ import os
 import json
 from scripts.json_handler import writeJson, readJson
 from statistic.empty_classroom import calculate_empty_classroom
+
 def calculate_cross_people(groups_list, week, period, time_option):
 
     cross_people = 0
@@ -51,6 +52,62 @@ def get_separate_group_list(lesson_group_list, week, period, time_option):
 
 
     return lesson_location, north_groups, south_groups, total_north_people, total_south_people
+
+
+# def sublist_by_top(original_list, top):
+#     """
+#             将一个list中的重复元素统计个数，吧出现次数最高的前top元素组成新list
+#     """
+#     original_dict = {}
+#     for item in set(original_list):
+#         original_dict[original_list.count(item)] = item
+#
+# #     print original_dict
+#     original_set_onlytop = []
+#     key_list = original_dict.keys()
+#     key_list.sort(reverse=True)
+#     for key in key_list:
+#         original_set_onlytop.append(original_dict[key])
+#
+#     result_top = []
+#     if original_set_onlytop.__len__() > top:
+#         for x in range(top):
+#             result_top.append(original_set_onlytop[x])
+#     else:
+#         result_top = original_set_onlytop
+#     return result_top
+
+def sort_by_list_count(list):
+       cnt = 0
+       city= ""
+       for x in list:
+           if list.count(x)>cnt:
+               city=x
+               cnt=list.count(x)
+       return city
+
+def pick_best_classroom(week, period, time_option, groups, avaliable_empty_classroom):
+
+    path = os.getcwd()
+    parent_path = os.path.dirname(path)
+    classroom_dict = readJson(parent_path + '/jsons/classroom_info.json')
+    building_classroom_list = readJson(parent_path + '/jsons/building_classroom_info.json')
+
+    buildings_list = []
+    for index, group in enumerate(groups):
+        if group.lessons[week][period][time_option*4+1] is not None and \
+            group.lessons[week][period][time_option*4+1].place in classroom_dict:
+            buildings_list.append(classroom_dict[group.lessons[week][period][time_option*4+1].place])
+
+    best_building = sort_by_list_count(buildings_list)
+    # print(best_building)
+
+    for index, empty_classroom in enumerate(avaliable_empty_classroom):
+        if empty_classroom.place_no in building_classroom_list and \
+            building_classroom_list[empty_classroom.place_no] == best_building:
+            return empty_classroom
+
+    return avaliable_empty_classroom[0]
 
 
 def optimize_by_place(places, groups, lessons, target_groups_list, week, period, time_option, north_empty_classroom, south_empty_classroom):
@@ -118,37 +175,36 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
             get_separate_group_list(value, week, period, time_option)
         # print(lesson_location)
 
+        avaliable_empty_classroom = []
         if total_north_people >= total_south_people and total_north_people + total_south_people != 0:
             for _, empty_classroom in enumerate(north_empty_classroom):
                 if empty_classroom.people >= total_north_people:
-                    print(index, "Found")
-                    for _, every_group in enumerate(value):
-                        every_group.lessons[week][period][time_option*4+2].place = empty_classroom.place_no
-                        every_group.lessons[week][period][time_option*4+3].place = empty_classroom.place_no
-                        optimized_groups_list.append(every_group)
+                    avaliable_empty_classroom.append(empty_classroom)
+            if(len(avaliable_empty_classroom) > 0):
+                print(index, "Found")
+                best_empty_classroom = pick_best_classroom(week, period, time_option, north_groups, avaliable_empty_classroom)
+                for _, every_group in enumerate(value):
+                    every_group.lessons[week][period][time_option*4+2].place = best_empty_classroom.place_no
+                    every_group.lessons[week][period][time_option*4+3].place = best_empty_classroom.place_no
+                    optimized_groups_list.append(every_group)
 
-                    break
-                # else:
-                #     print(index, "Not found")
+        avaliable_empty_classroom = []
         if total_north_people < total_south_people and total_north_people + total_south_people != 0:
             for _, empty_classroom in enumerate(south_empty_classroom):
                 if empty_classroom.people >= total_south_people:
-                    print(index, "Found")
-                    for _, every_group in enumerate(value):
-                        every_group.lessons[week][period][time_option*4+2].place = empty_classroom.place_no
-                        every_group.lessons[week][period][time_option*4+3].place = empty_classroom.place_no
-                        optimized_groups_list.append(every_group)
+                    avaliable_empty_classroom.append(empty_classroom)
+            if(len(avaliable_empty_classroom) > 0):
+                print(index, "Found")
+                best_empty_classroom = pick_best_classroom(week, period, time_option, south_groups, avaliable_empty_classroom)
+                for _, every_group in enumerate(value):
+                    every_group.lessons[week][period][time_option*4+2].place = best_empty_classroom.place_no
+                    every_group.lessons[week][period][time_option*4+3].place = best_empty_classroom.place_no
+                    optimized_groups_list.append(every_group)
 
-                    break
-                # else:
-                #     print(index, "Not found")
 
     print('Total of optimized cross people:', len(optimized_groups_list))
 
     return optimized_groups_list
-
-
-
 
 
 

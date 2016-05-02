@@ -2,7 +2,7 @@ from constant.constant import weeks_time
 import copy
 
 
-def calculate_floor_people(places, groups, lessons, room_people_list, classroom_info):
+def calculate_floor_people(places, groups, lessons, room_people_list, building_info):
 
     statistics_list = []
 
@@ -16,10 +16,10 @@ def calculate_floor_people(places, groups, lessons, room_people_list, classroom_
         for j in range(7):
             for t in range(12):
 
-                room_dict = copy.deepcopy(classroom_info)
+                room_dict = copy.deepcopy(building_info)
                 # print(room_dict)
 
-                for area, buildings_list in classroom_info.items():
+                for area, buildings_list in building_info.items():
                     for building, floors_list in buildings_list.items():
                         for floor, rooms_list in floors_list.items():
 
