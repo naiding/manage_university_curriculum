@@ -25,9 +25,7 @@ def calculate_floor_people(places, groups, lessons, room_people_list, building_i
 
                             total = 0
                             if isinstance(rooms_list, list):
-                                # print(type(rooms_list), ": ", rooms_list)
                                 for index, room in enumerate(rooms_list):
-                                    # print(room_people_list[i][room[0]][j][t])
                                     total += room_people_list[i][room[0]][j][t]
 
                             room_dict[area][building][floor] = total

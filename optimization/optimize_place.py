@@ -16,14 +16,13 @@ def calculate_cross_people(groups_list, week, period, time_option):
             lesson1 = group.lessons[week][period][time_option*4+1]
             lesson2 = group.lessons[week][period][time_option*4+2]
 
-            if lesson1 is None or lesson2 is None:
-                continue
+            if lesson1 is not None and  lesson2 is not None:
 
-            place1 = lesson1.place
-            place2 = lesson2.place
+                place1 = lesson1.place
+                place2 = lesson2.place
 
-            if place1 in mydict and place2 in mydict and mydict[place1] != mydict[place2]:
-                cross_people += group.people
+                if place1 in mydict and place2 in mydict and mydict[place1] != mydict[place2]:
+                    cross_people += group.people
 
     return cross_people
 
@@ -40,15 +39,18 @@ def get_separate_group_list(lesson_group_list, week, period, time_option):
     lesson_location = ''
 
     for index, group in enumerate(lesson_group_list):
-        if mydict[group.lessons[week][period][time_option*4+2].place] == 'N':
-            north_groups.append(group)
-            total_north_people = total_north_people + group.people
-            lesson_location = mydict[group.lessons[week][period][time_option*4+2].place]
 
-        elif mydict[group.lessons[week][period][time_option*4+2].place] == 'S':
-            south_groups.append(group)
-            total_south_people = total_south_people + group.people
-            lesson_location = mydict[group.lessons[week][period][time_option*4+2].place]
+        lesson = group.lessons[week][period][time_option*4]
+        if lesson is not None and lesson.place in mydict:
+            if mydict[group.lessons[week][period][time_option*4].place] == 'N':
+                north_groups.append(group)
+                total_north_people = total_north_people + group.people
+                lesson_location = mydict[group.lessons[week][period][time_option*4].place]
+
+            elif mydict[group.lessons[week][period][time_option*4].place] == 'S':
+                south_groups.append(group)
+                total_south_people = total_south_people + group.people
+                lesson_location = mydict[group.lessons[week][period][time_option*4].place]
 
 
     return lesson_location, north_groups, south_groups, total_north_people, total_south_people
@@ -116,8 +118,8 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
     parent_path = os.path.dirname(path)
     mydict = readJson(parent_path + '/jsons/places.json')
 
-    cross_people = calculate_cross_people(target_groups_list, week, period, time_option)
-    print('Total cross people: ', cross_people)
+    # cross_people = calculate_cross_people(target_groups_list, week, period, time_option)
+    # print('Total cross people: ', cross_people)
 
     cross_groups_list = []
     for index, target_group in enumerate(target_groups_list):
@@ -154,13 +156,13 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
                         cross_groups_list.append(conflict_groups_list)
                         break
 
-    print('Length of cross_groups_list: ', len(cross_groups_list))
+    # print('Length of cross_groups_list: ', len(cross_groups_list))
 
     new_cross_groups_list = []
     for index, value in enumerate(cross_groups_list):
         if value not in new_cross_groups_list:
             new_cross_groups_list.append(value)
-    print('Length of new_cross_groups_list: ', len(new_cross_groups_list))
+    # print('Length of new_cross_groups_list: ', len(new_cross_groups_list))
 
     # total = 0
     # for _, value in enumerate(new_cross_groups_list):
@@ -195,6 +197,13 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
                     # print("O, new: ", every_group.group_no, ": ",  every_group.lessons[week][period][time_option*4+2].place)
 
                     optimized_groups_list.append(every_group)
+            if len(south_groups) > 0:
+                for _, every_south_group in enumerate(south_groups):
+                    for _, empty_classroom in enumerate(north_empty_classroom):
+                        if empty_classroom.people >= every_south_group.people:
+
+                            every_south_group.lessons[week][period][time_option*4].place = empty_classroom.place_no
+                            every_south_group.lessons[week][period][time_option*4+1].place = empty_classroom.place_no
 
         avaliable_empty_classroom = []
         if total_north_people < total_south_people and total_north_people + total_south_people != 0:
@@ -210,8 +219,15 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
                     every_group.lessons[week][period][time_option*4+3].place = best_empty_classroom.place_no
                     optimized_groups_list.append(every_group)
                     # print("O, new: ", every_group.group_no, ": ",  every_group.lessons[week][period][time_option*4+2].place)
+            if len(north_groups) > 0:
+                for _, every_north_group in enumerate(north_groups):
+                    for _, empty_classroom in enumerate(south_empty_classroom):
+                        if empty_classroom.people >= every_north_group.people:
 
-    print('Total of optimized cross people:', len(optimized_groups_list))
+                            every_north_group.lessons[week][period][time_option*4].place = empty_classroom.place_no
+                            every_north_group.lessons[week][period][time_option*4+1].place = empty_classroom.place_no
+
+    # print('Total of optimized cross people:', calculate_cross_people(optimized_groups_list, week, period, time_option))
 
     return optimized_groups_list
 
@@ -244,3 +260,4 @@ def optimize_by_place(places, groups, lessons, target_groups_list, week, period,
 #     for index, place in enumerate(south_empty_classroom):
 #         empty_classroom_people += place.people
 #         print(place.place_no)
+
